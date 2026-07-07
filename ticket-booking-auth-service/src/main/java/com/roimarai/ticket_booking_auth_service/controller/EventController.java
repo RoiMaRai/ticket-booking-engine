@@ -23,7 +23,7 @@ public class EventController {
         return eventRepository.findAll();
     }
 
-    @GetMapping("/pricesum")
+    @GetMapping("/events/pricesum")
     public BigDecimal getSumOfPrice(){
         BigDecimal sum = BigDecimal.ZERO;
         for (Event event : eventRepository.findAll()){
