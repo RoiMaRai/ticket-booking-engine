@@ -38,18 +38,16 @@ public class EventController {
     }
 
     @GetMapping("/events/{id}")
-    public Optional<Event> getEvent(@PathVariable("id") Long id){
+    public Event getEvent(@PathVariable("id") Long id){
         Optional<Event> event = eventRepository.findById(id);
         if (event.isEmpty()){
-            throw new ResourceNotFoundException("Event not found with id:"+id);
+            throw new ResourceNotFoundException("Event not found with id: " + id);
         }
-        else{
-            return event;
-        }
+        return event.get();
     }
 
     @DeleteMapping("/events/{id}")
-    public ResponseEntity<Object> deleteEvent(@PathVariable("id") Long id){
+    public ResponseEntity<Void> deleteEvent(@PathVariable("id") Long id){
         Optional<Event> event = eventRepository.findById(id);
         if (event.isEmpty()){
             throw new ResourceNotFoundException("Event not found with id:"+id);

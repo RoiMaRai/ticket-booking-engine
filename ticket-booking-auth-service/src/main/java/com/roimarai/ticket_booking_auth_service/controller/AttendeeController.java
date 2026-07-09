@@ -37,7 +37,7 @@ public class AttendeeController {
     }
 
     @DeleteMapping("/attendees/{id}")
-    public ResponseEntity<Attendee> deleteAttendee(@PathVariable("id") Long id){
+    public ResponseEntity<Void> deleteAttendee(@PathVariable("id") Long id){
         Optional<Attendee> attendee = attendeeRepository.findById(id);
         if (attendee.isEmpty()){
             throw new ResourceNotFoundException("Attendee not found with id: "+id);
