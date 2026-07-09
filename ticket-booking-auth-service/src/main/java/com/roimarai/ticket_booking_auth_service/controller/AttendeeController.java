@@ -5,7 +5,6 @@ import com.roimarai.ticket_booking_auth_service.model.Attendee;
 import com.roimarai.ticket_booking_auth_service.repository.AttendeeRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tools.jackson.databind.ser.std.DelegatingSerializer;
 
 import java.util.List;
 import java.util.Optional;

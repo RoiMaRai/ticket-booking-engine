@@ -3,8 +3,6 @@ package com.roimarai.ticket_booking_auth_service.controller;
 import com.roimarai.ticket_booking_auth_service.exception.ResourceNotFoundException;
 import com.roimarai.ticket_booking_auth_service.model.Event;
 import com.roimarai.ticket_booking_auth_service.repository.EventRepository;
-import org.apache.coyote.Response;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
