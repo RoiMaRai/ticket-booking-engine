@@ -3,6 +3,8 @@ package com.roimarai.ticket_booking_auth_service.controller;
 import com.roimarai.ticket_booking_auth_service.exception.ResourceNotFoundException;
 import com.roimarai.ticket_booking_auth_service.model.Event;
 import com.roimarai.ticket_booking_auth_service.repository.EventRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +35,9 @@ public class EventController {
     }
 
     @PostMapping("/events")
-    public Event createEvent(@RequestBody Event event){
-        return eventRepository.save(event);
+    public ResponseEntity<Event> createEvent(@RequestBody Event event){
+        Event savedEvent = eventRepository.save(event);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
     }
 
     @GetMapping("/events/{id}")
