@@ -1,5 +1,6 @@
 package com.roimarai.ticket_booking_auth_service.controller;
 
+import com.roimarai.ticket_booking_auth_service.exception.ResourceNotFoundException;
 import com.roimarai.ticket_booking_auth_service.model.User;
 import com.roimarai.ticket_booking_auth_service.repository.AttendeeRepository;
 import com.roimarai.ticket_booking_auth_service.repository.UserRepository;
@@ -28,5 +29,15 @@ public class UserController {
         user.setPassword(hashed);
         User saved = userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User loginRequest){
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (!passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+        return ResponseEntity.ok("Login successful - token generation coming next");
     }
 }
