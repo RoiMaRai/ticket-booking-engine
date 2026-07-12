@@ -14,11 +14,9 @@ import java.util.Optional;
 @RestController
 public class AttendeeController {
     private final AttendeeRepository attendeeRepository;
-    private final EventRepository eventRepository;
 
-    public AttendeeController(AttendeeRepository attendeeRepository, EventRepository eventRepository){
+    public AttendeeController(AttendeeRepository attendeeRepository){
         this.attendeeRepository = attendeeRepository;
-        this.eventRepository = eventRepository;
     }
 
     @GetMapping("/attendees")

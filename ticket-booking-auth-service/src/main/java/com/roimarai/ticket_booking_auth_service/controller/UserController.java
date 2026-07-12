@@ -16,13 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AttendeeRepository attendeeRepository;
     private final JwtUtil jwtUtil;
 
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, AttendeeRepository attendeeRepository, JwtUtil jwtUtil){
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.attendeeRepository = attendeeRepository;
         this.jwtUtil = jwtUtil;
     }
 
