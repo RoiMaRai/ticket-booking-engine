@@ -4,6 +4,7 @@ import com.roimarai.ticket_booking_auth_service.exception.ResourceNotFoundExcept
 import com.roimarai.ticket_booking_auth_service.model.User;
 import com.roimarai.ticket_booking_auth_service.repository.AttendeeRepository;
 import com.roimarai.ticket_booking_auth_service.repository.UserRepository;
+import com.roimarai.ticket_booking_auth_service.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,11 +17,13 @@ public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AttendeeRepository attendeeRepository;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, AttendeeRepository attendeeRepository){
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, AttendeeRepository attendeeRepository, JwtUtil jwtUtil){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.attendeeRepository = attendeeRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
@@ -38,6 +41,7 @@ public class UserController {
         if (!passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-        return ResponseEntity.ok("Login successful - token generation coming next");
+        String token = jwtUtil.generateToken(user.getUsername());
+        return ResponseEntity.ok(token);
     }
 }
