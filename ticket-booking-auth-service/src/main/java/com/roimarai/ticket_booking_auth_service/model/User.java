@@ -1,5 +1,6 @@
 package com.roimarai.ticket_booking_auth_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,13 +8,15 @@ import jakarta.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     private String username;
+
+    @JsonIgnore
     private String password; // For hashed password
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public String getUsername() {
@@ -25,7 +28,7 @@ public class User {
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public void setUsername(String username) {
