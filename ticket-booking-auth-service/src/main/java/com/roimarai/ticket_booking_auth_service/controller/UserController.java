@@ -2,12 +2,15 @@ package com.roimarai.ticket_booking_auth_service.controller;
 
 import com.roimarai.ticket_booking_auth_service.exception.ResourceNotFoundException;
 import com.roimarai.ticket_booking_auth_service.model.User;
-import com.roimarai.ticket_booking_auth_service.repository.AttendeeRepository;
 import com.roimarai.ticket_booking_auth_service.repository.UserRepository;
 import com.roimarai.ticket_booking_auth_service.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,5 +44,26 @@ public class UserController {
         }
         String token = jwtUtil.generateToken(user.getUsername());
         return ResponseEntity.ok(token);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<String> getSelfInfo(HttpServletRequest request){
+        /*
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader==null ||  !(authHeader.startsWith("Bearer "))){
+            throw new ResourceNotFoundException("Missing Authorization header");
+        }
+        String token = authHeader.substring(7);
+        if (!(jwtUtil.isTokenValid(token))){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
+        String username = jwtUtil.extractUsername(token);
+        return ResponseEntity.ok().body(username); */
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication==null || !(authentication.isAuthenticated())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User unauthorized");
+        }
+        String username = authentication.getName();
+        return ResponseEntity.ok().body(username);
     }
 }
