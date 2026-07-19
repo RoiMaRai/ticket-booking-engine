@@ -1,9 +1,6 @@
 package com.roimarai.ticket_booking_ticket_service.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
@@ -16,7 +13,8 @@ public class Event {
     private String eventName;
     private BigDecimal price;
     private String venueName;
-    private int capacity;
+    private int totalSeats;
+    private int availableSeats;
 
     public Long getId() {
         return id;
@@ -34,8 +32,12 @@ public class Event {
         return venueName;
     }
 
-    public int getCapacity() {
-        return capacity;
+    public int getTotalSeats() {
+        return totalSeats;
+    }
+
+    public int getAvailableSeats() {
+        return availableSeats;
     }
 
     //////////////////////////////////////////
@@ -56,7 +58,16 @@ public class Event {
         this.venueName = venueName;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
+    public void setTotalSeats(int capacity) {
+        this.totalSeats = capacity;
+    }
+
+    public void setAvailableSeats(int availableSeats) {
+        this.availableSeats = availableSeats;
+    }
+
+    @PrePersist
+    public void initAvailableSeats() {
+        this.availableSeats = this.totalSeats;
     }
 }
