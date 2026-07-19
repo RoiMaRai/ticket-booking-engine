@@ -1,4 +1,7 @@
 package com.roimarai.ticket_booking_ticket_service.repository;
 
-public interface EventRepository {
+import com.roimarai.ticket_booking_ticket_service.model.Event;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EventRepository extends JpaRepository<Event, Long> {
 }

@@ -1,4 +1,4 @@
-package com.roimarai.ticket_booking_auth_service.exception;
+package com.roimarai.ticket_booking_ticket_service.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

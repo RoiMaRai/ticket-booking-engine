@@ -15,6 +15,8 @@ public class Event {
 
     private String eventName;
     private BigDecimal price;
+    private String venueName;
+    private int capacity;
 
     public Long getId() {
         return id;
@@ -28,6 +30,16 @@ public class Event {
         return price;
     }
 
+    public String getVenueName() {
+        return venueName;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    //////////////////////////////////////////
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -38,5 +50,13 @@ public class Event {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public void setVenueName(String venueName) {
+        this.venueName = venueName;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 }

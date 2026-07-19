@@ -1,8 +1,8 @@
-package com.roimarai.ticket_booking_auth_service.controller;
+package com.roimarai.ticket_booking_ticket_service.controller;
 
-import com.roimarai.ticket_booking_auth_service.exception.ResourceNotFoundException;
-import com.roimarai.ticket_booking_auth_service.model.Event;
-import com.roimarai.ticket_booking_auth_service.repository.EventRepository;
+import com.roimarai.ticket_booking_ticket_service.exception.ResourceNotFoundException;
+import com.roimarai.ticket_booking_ticket_service.model.Event;
+import com.roimarai.ticket_booking_ticket_service.repository.EventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
