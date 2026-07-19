@@ -66,6 +66,8 @@ public class EventController {
             currentEvent.setAvailableSeats(
                     currentEvent.getAvailableSeats() - reservation.getSeatCount()
             );
+            eventRepository.save(currentEvent);
+
             reservation.setEventId(currentEvent.getId());
             reservation.setStatus("RESERVED");
             reservationRepository.save(reservation);
