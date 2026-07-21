@@ -48,17 +48,6 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<String> getSelfInfo(HttpServletRequest request){
-        /*
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader==null ||  !(authHeader.startsWith("Bearer "))){
-            throw new ResourceNotFoundException("Missing Authorization header");
-        }
-        String token = authHeader.substring(7);
-        if (!(jwtUtil.isTokenValid(token))){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
-        }
-        String username = jwtUtil.extractUsername(token);
-        return ResponseEntity.ok().body(username); */
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication==null || !(authentication.isAuthenticated())){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User unauthorized");
