@@ -6,6 +6,7 @@ import com.roimarai.ticket_booking_ticket_service.model.Event;
 import com.roimarai.ticket_booking_ticket_service.model.Reservation;
 import com.roimarai.ticket_booking_ticket_service.repository.EventRepository;
 import com.roimarai.ticket_booking_ticket_service.repository.ReservationRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,9 +54,10 @@ public class EventController {
         return event.get();
     }
 
+    @Transactional
     @PostMapping("/events/{id}/reserve")
     public ResponseEntity<Reservation> reserveTicketForEvent(@PathVariable("id") Long id, @RequestBody Reservation reservation){
-        Optional<Event> event = eventRepository.findById(id);
+        Optional<Event> event = eventRepository.findWithLockById(id);
         if (event.isEmpty()){
             throw new ResourceNotFoundException("Event not found with id: " + id);
         }
