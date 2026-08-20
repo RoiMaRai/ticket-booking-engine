@@ -15,8 +15,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+
 @RestController
 public class EventController {
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     private final EventRepository eventRepository;
     private final ReservationRepository reservationRepository;
     public EventController(EventRepository eventRepository, ReservationRepository reservationRepository){
@@ -47,11 +53,19 @@ public class EventController {
 
     @GetMapping("/events/{id}")
     public Event getEvent(@PathVariable("id") Long id){
-        Optional<Event> event = eventRepository.findById(id);
-        if (event.isEmpty()){
-            throw new ResourceNotFoundException("Event not found with id: " + id);
+        String key = "event:" + id;
+
+        Object cachedEvent = redisTemplate.opsForValue().get(key);
+        if (cachedEvent != null){
+            return (Event) cachedEvent;
+        }else{
+            Optional<Event> event = eventRepository.findById(id);
+            if (event.isEmpty()){
+                throw new ResourceNotFoundException("Event not found with id: " + id);
+            }
+            redisTemplate.opsForValue().set(key,event.get());
+            return event.get();
         }
-        return event.get();
     }
 
     @Transactional
