@@ -35,6 +35,11 @@ public class EventController {
         return eventRepository.findAll();
     }
 
+    @GetMapping("/reservations")
+    public List<Reservation> getAllReservations(){
+        return reservationRepository.findAll();
+    }
+
     @GetMapping("/events/pricesum")
     public BigDecimal getSumOfPrice(){
         BigDecimal sum = BigDecimal.ZERO;
@@ -87,6 +92,9 @@ public class EventController {
             reservation.setEventId(currentEvent.getId());
             reservation.setStatus("RESERVED");
             reservationRepository.save(reservation);
+
+            String key = "event:" + id;
+            redisTemplate.delete(key);
             return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
         }else{
             // Not enough seat
