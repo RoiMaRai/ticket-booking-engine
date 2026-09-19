@@ -1,4 +1,4 @@
-package com.roimarai.ticket_booking_ticket_service.model;
+package com.roimarai.ticket_booking_ticket_service.dto;
 
 public record ReservationRequest(
         int seatCount,
