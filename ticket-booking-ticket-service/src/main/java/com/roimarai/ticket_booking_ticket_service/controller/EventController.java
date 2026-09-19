@@ -2,8 +2,12 @@ package com.roimarai.ticket_booking_ticket_service.controller;
 
 import com.roimarai.ticket_booking_ticket_service.exception.NotEnoughSeatsException;
 import com.roimarai.ticket_booking_ticket_service.exception.ResourceNotFoundException;
+import com.roimarai.ticket_booking_ticket_service.messaging.PurchaseEventProducer;
+import com.roimarai.ticket_booking_ticket_service.messaging.PurchaseRequestedEvent;
 import com.roimarai.ticket_booking_ticket_service.model.Event;
 import com.roimarai.ticket_booking_ticket_service.model.Reservation;
+import com.roimarai.ticket_booking_ticket_service.dto.ReservationRequest;
+import com.roimarai.ticket_booking_ticket_service.dto.ReservationResult;
 import com.roimarai.ticket_booking_ticket_service.repository.EventRepository;
 import com.roimarai.ticket_booking_ticket_service.repository.ReservationRepository;
 import jakarta.transaction.Transactional;
@@ -25,9 +29,11 @@ public class EventController {
 
     private final EventRepository eventRepository;
     private final ReservationRepository reservationRepository;
-    public EventController(EventRepository eventRepository, ReservationRepository reservationRepository){
+    private final PurchaseEventProducer purchaseEventProducer;
+    public EventController(EventRepository eventRepository, ReservationRepository reservationRepository, PurchaseEventProducer purchaseEventProducer){
         this.eventRepository = eventRepository;
         this.reservationRepository = reservationRepository;
+        this.purchaseEventProducer = purchaseEventProducer;
     }
 
     @GetMapping("/events")
@@ -74,34 +80,51 @@ public class EventController {
     }
 
     @Transactional
-    @PostMapping("/events/{id}/reserve")
-    public ResponseEntity<Reservation> reserveTicketForEvent(@PathVariable("id") Long id, @RequestBody Reservation reservation){
+    public ReservationResult reserveTicketForEvent(Long id, ReservationRequest request){
         Optional<Event> event = eventRepository.findWithLockById(id);
         if (event.isEmpty()){
             throw new ResourceNotFoundException("Event not found with id: " + id);
         }
         Event currentEvent = event.get();
 
-        if (reservation.getSeatCount() <= currentEvent.getAvailableSeats()){
+        if (request.seatCount() <= currentEvent.getAvailableSeats()){
             // Enough seat
             currentEvent.setAvailableSeats(
-                    currentEvent.getAvailableSeats() - reservation.getSeatCount()
+                    currentEvent.getAvailableSeats() - request.seatCount()
             );
             eventRepository.save(currentEvent);
 
+            Reservation reservation = new Reservation();
             reservation.setEventId(currentEvent.getId());
+            reservation.setSeatCount(request.seatCount());
             reservation.setStatus("RESERVED");
             reservationRepository.save(reservation);
 
             String key = "event:" + id;
             redisTemplate.delete(key);
-            return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
+
+            BigDecimal totalPrice = currentEvent.getPrice().multiply(BigDecimal.valueOf(request.seatCount()));
+            return new ReservationResult(reservation, totalPrice);
         }else{
             // Not enough seat
-            String errorMsg = "Could not reserve "+reservation.getSeatCount()+" seats." +
+            String errorMsg = "Could not reserve "+request.seatCount()+" seats." +
                     "Only "+currentEvent.getAvailableSeats()+" seats are remaining.";
             throw new NotEnoughSeatsException(errorMsg);
         }
+    }
+
+    @PostMapping("/events/{id}/reserve")
+    public ResponseEntity<Reservation> reserve(@PathVariable("id") Long id, @RequestBody ReservationRequest request){
+        ReservationResult result = reserveTicketForEvent(id, request);
+
+        purchaseEventProducer.publishPurchaseRequested(new PurchaseRequestedEvent(
+                result.reservation().getId(),
+                request.recipient(),
+                request.paymentToken(),
+                result.totalPrice()
+        ));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result.reservation());
     }
 
     @DeleteMapping("/events/{id}")
