@@ -1,6 +1,5 @@
 package com.roimarai.ticket_booking_ticket_service.controller;
 
-import com.roimarai.ticket_booking_ticket_service.exception.NotEnoughSeatsException;
 import com.roimarai.ticket_booking_ticket_service.exception.ResourceNotFoundException;
 import com.roimarai.ticket_booking_ticket_service.messaging.PurchaseEventProducer;
 import com.roimarai.ticket_booking_ticket_service.messaging.PurchaseRequestedEvent;
@@ -10,7 +9,8 @@ import com.roimarai.ticket_booking_ticket_service.dto.ReservationRequest;
 import com.roimarai.ticket_booking_ticket_service.dto.ReservationResult;
 import com.roimarai.ticket_booking_ticket_service.repository.EventRepository;
 import com.roimarai.ticket_booking_ticket_service.repository.ReservationRepository;
-import jakarta.transaction.Transactional;
+
+import com.roimarai.ticket_booking_ticket_service.service.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +19,26 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 @RestController
 public class EventController {
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
+    private final ReservationService reservationService;
     private final EventRepository eventRepository;
     private final ReservationRepository reservationRepository;
     private final PurchaseEventProducer purchaseEventProducer;
-    public EventController(EventRepository eventRepository, ReservationRepository reservationRepository, PurchaseEventProducer purchaseEventProducer){
+    private final RedisTemplate<String, Object> redisTemplate;
+    public EventController(EventRepository eventRepository,
+                           ReservationRepository reservationRepository,
+                           PurchaseEventProducer purchaseEventProducer,
+                           ReservationService reservationService,
+                           RedisTemplate<String, Object> redisTemplate
+    ){
         this.eventRepository = eventRepository;
         this.reservationRepository = reservationRepository;
         this.purchaseEventProducer = purchaseEventProducer;
+        this.reservationService = reservationService;
+        this.redisTemplate = redisTemplate;
     }
 
     @GetMapping("/events")
@@ -79,43 +84,9 @@ public class EventController {
         }
     }
 
-    @Transactional
-    public ReservationResult reserveTicketForEvent(Long id, ReservationRequest request){
-        Optional<Event> event = eventRepository.findWithLockById(id);
-        if (event.isEmpty()){
-            throw new ResourceNotFoundException("Event not found with id: " + id);
-        }
-        Event currentEvent = event.get();
-
-        if (request.seatCount() <= currentEvent.getAvailableSeats()){
-            // Enough seat
-            currentEvent.setAvailableSeats(
-                    currentEvent.getAvailableSeats() - request.seatCount()
-            );
-            eventRepository.save(currentEvent);
-
-            Reservation reservation = new Reservation();
-            reservation.setEventId(currentEvent.getId());
-            reservation.setSeatCount(request.seatCount());
-            reservation.setStatus("RESERVED");
-            reservationRepository.save(reservation);
-
-            String key = "event:" + id;
-            redisTemplate.delete(key);
-
-            BigDecimal totalPrice = currentEvent.getPrice().multiply(BigDecimal.valueOf(request.seatCount()));
-            return new ReservationResult(reservation, totalPrice);
-        }else{
-            // Not enough seat
-            String errorMsg = "Could not reserve "+request.seatCount()+" seats." +
-                    "Only "+currentEvent.getAvailableSeats()+" seats are remaining.";
-            throw new NotEnoughSeatsException(errorMsg);
-        }
-    }
-
     @PostMapping("/events/{id}/reserve")
     public ResponseEntity<Reservation> reserve(@PathVariable("id") Long id, @RequestBody ReservationRequest request){
-        ReservationResult result = reserveTicketForEvent(id, request);
+        ReservationResult result = reservationService.reserveTicketForEvent(id, request);
 
         purchaseEventProducer.publishPurchaseRequested(new PurchaseRequestedEvent(
                 result.reservation().getId(),
