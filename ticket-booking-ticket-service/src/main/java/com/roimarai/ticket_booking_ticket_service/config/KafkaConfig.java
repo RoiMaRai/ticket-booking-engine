@@ -1,6 +1,6 @@
 package com.roimarai.ticket_booking_ticket_service.config;
 
-import com.roimarai.ticket_booking_ticket_service.messaging.PurchaseRequestedEvent;
+import com.roimarai.ticket_booking_shared.messaging.PurchaseRequestedEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;

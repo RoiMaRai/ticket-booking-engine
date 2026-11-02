@@ -2,7 +2,7 @@ package com.roimarai.ticket_booking_ticket_service.controller;
 
 import com.roimarai.ticket_booking_ticket_service.exception.ResourceNotFoundException;
 import com.roimarai.ticket_booking_ticket_service.messaging.PurchaseEventProducer;
-import com.roimarai.ticket_booking_ticket_service.messaging.PurchaseRequestedEvent;
+import com.roimarai.ticket_booking_shared.messaging.PurchaseRequestedEvent;
 import com.roimarai.ticket_booking_ticket_service.model.Event;
 import com.roimarai.ticket_booking_ticket_service.model.Reservation;
 import com.roimarai.ticket_booking_ticket_service.dto.ReservationRequest;

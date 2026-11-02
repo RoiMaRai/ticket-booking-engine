@@ -1,4 +1,4 @@
-package com.roimarai.ticket_booking_ticket_service.messaging;
+package com.roimarai.ticket_booking_shared.messaging;
 
 import java.math.BigDecimal;
 

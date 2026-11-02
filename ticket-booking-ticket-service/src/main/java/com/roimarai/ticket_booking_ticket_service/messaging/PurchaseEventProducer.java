@@ -1,5 +1,6 @@
 package com.roimarai.ticket_booking_ticket_service.messaging;
 
+import com.roimarai.ticket_booking_shared.messaging.PurchaseRequestedEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
