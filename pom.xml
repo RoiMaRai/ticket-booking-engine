@@ -21,5 +21,6 @@
         <module>ticket-booking-shared</module>
         <module>ticket-booking-auth-service</module>
         <module>ticket-booking-ticket-service</module>
+        <module>ticket-booking-payment-service</module>
     </modules>
 </project>
